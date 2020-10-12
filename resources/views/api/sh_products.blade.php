@@ -1,9 +1,8 @@
 @extends('layouts.app')
 
 @section('javascript')
-
-    <script type="text/javascript">
-        async function product(id){
+    <script>
+        function product(id){
             $.ajax({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name=csrf-token]').attr('content')
@@ -24,7 +23,6 @@
                 }
             });
         }
-
         function deleteproduct(id) {
             var flag  = confirm("Are You Sure");
             if(flag==true)
@@ -50,9 +48,92 @@
                 });
             }
         }
+        function showAimsProducts(id) {
+            var input = $('#hidden');
+            input.val(id);
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name=csrf-token]').attr('content')
+                },
+                type: 'get',
+                url: '/fetch_ship_hero_product',
+                dataType: 'json',
+                success: function(result2) {
+                    if(result2){
+                        console.log(result2);
+                        var body = $('#body');
+                        body.empty();
+                        body.append(result2);
+                    }
+                    else
+                    {
+                        alert("error");
+                    }
+                }
+            });
+        }
+
+        function match(id) {
+            var id1 = $('#hidden').val();
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name=csrf-token]').attr('content')
+                },
+                type: 'POST',
+                url: '/match_products',
+                dataType: 'json',
+                data : {id:id,id1:id1},
+                success: function(result3) {
+                    if(result3){
+                        location.reload();
+                    }
+                    else
+                    {
+                        alert("error");
+                    }
+                }
+            });
+        }
+
+        window.onload = function() {
+            // +++++ Agents Table +++++ //
+            let columns = ['GQL_id', 'name', 'sku', 'status'];
+            let columnDefs = [
+                {
+                    render: (data, type, row) => {
+                        if(data == 1)
+                            return '<span class="badge badge-success">Matched</span>'
+
+                        return '<span class="badge badge-danger">Not Matched</span>';
+                    },
+
+                    targets: 3
+                },
+                {
+                    render: (data, type, row) => {
+                        return `<button class="btn" data-toggle="modal" data-target="#editProduct" onclick="product(${row.id})" style="background-color: transparent;">
+                                <i class="fas fa-pen" style="color:#671313;"></i></button>
+                                <button class="btn"  onclick="deleteproduct(${row.id})">
+                                <i class="fas fa-trash-alt"></i></button>`
+                    },
+
+                    targets: 4
+                },
+                {
+                    render: (data, type, row) => {
+                        return `<button class="btn" style="color:white;background-color: grey;" onclick="showAimsProducts(${row.id})" data-toggle="modal" data-target="#matchProducts">Match</button>`
+                    },
+
+                    targets: 5
+                },
+            ];
+
+            dataTables('#shiphero_products', "{{ route('sh_loaddata') }}", columns, columnDefs);
+
+        };
+
     </script>
 @endsection
-
 @section('content')
     <div class="container">
         @if (session('status'))
@@ -61,34 +142,26 @@
             </div>
         @endif
         <div class="row">
-            <div class="col-md-10 offset-1 px-5">
-               <h1 class="text-center my-2" style="font-family: 'Nunito', sans-serif;">SHIPHERO PRODUCTS</h1>
-                <a href="/api/GraphQl"><button class="btn" style="color:white;background-color: grey;">Sync</button></a>
-                @if(!count($products) == 0)
+            <div class="col-md-12">
+               <h1 class="text-center my-5" style="font-family: 'Nunito', sans-serif;">SHIPHERO PRODUCTS</h1>
+                <a href="/api/GraphQl"><button class="btn" style="color:white;background-color: grey;">Sync Products</button></a>
                     <div class="row justify-content-center my-4">
                         <div class="col">
-                            <table class='table border table-hover text-center my-1' style="border-color: black;">
+                            <table class='table border table-hover text-center my-1' id="shiphero_products" style="border-color: black;">
+                                <thead>
                                 <tr class="bg-dark text-white">
-                                    <td><strong>Check</strong></td>
                                     <td><strong>GraphQlProduct-id</strong></td>
                                     <td><strong>Name</strong></td>
                                     <td><strong>Sku</strong></td>
-                                    <td>Action</td>
+                                    <td><strong>Status</strong></td>
+                                    <td><strong>Action</strong></td>
+                                    <td><strong>Matching</strong></td>
                                 </tr>
-                                @foreach($products as $key=>$product)
-                                    <tr>
-                                        <td><input type="checkbox" id="{{$key}}"></td>
-                                        <td>{{ $product->GQL_id }}</td>
-                                        <td>{{ $product->name }}</td>
-                                        <td>{{ $product->sku }}</td>
-                                        <td><button class="btn" data-toggle="modal" data-target="#editProduct" onclick="product({{$product->id}})" style="background-color: transparent;"><i class="fas fa-pen" style="color:#671313;"></i></button>
-                                            <button class="btn"  onclick="deleteproduct({{$product->id}})"><i class="fas fa-trash-alt"></i></button></td>
-                                    </tr>
-                                @endforeach
+                                </thead>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
-                @endif
             </div>
         </div>
     </div>
@@ -114,6 +187,29 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
                 </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- The Product Match Modal -->
+    <div class="modal" id="matchProducts">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Match Aims360 Products</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body" id="body">
+
+                </div>
+
+                <!-- Modal footer -->
+                <input type="hidden" id="hidden">
 
             </div>
         </div>

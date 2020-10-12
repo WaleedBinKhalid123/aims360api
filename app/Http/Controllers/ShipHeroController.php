@@ -8,19 +8,20 @@ use App\Models\QraphQlProduct;
 use Illuminate\Http\Request;
 use App\Models\Aims360_Product;
 use App\Models\ShipHero_Aims360;
+use DataTables;
 
-class ApiController extends Controller
+class ShipHeroController extends Controller
 {
     /**
      * AimsStyleServiceVariable
      *
      * @var
      */
-     public $service;
+    public $service;
 
-     const AIMS360_STYLE_ENDPOINTS = '/StyleColors/v1.1/StyleColors';
+    const AIMS360_STYLE_ENDPOINTS = '/StyleColors/v1.1/StyleColors';
 
-     public $httpClient;
+    public $httpClient;
 
     /**
      * instantiate AimsStyleService object
@@ -39,13 +40,23 @@ class ApiController extends Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-     public function index()
-     {
-         $products = QraphQlProduct::all();
-         return view('api.sh_products')->with('products',$products);
-     }
+    public function index(Request $request)
+    {
+        return view('api.sh_products');
+    }
 
+    public function loadData()
+    {
+        $products = QraphQlProduct::latest()->get();
+        return datatables()->of( $products )->toJson();
+    }
 
+    /**
+     * get shiphero products from api
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     *
+     */
      public function get()
      {
          // Query Example
@@ -162,6 +173,7 @@ class ApiController extends Controller
      }
 
     /**
+     *
      *return all unmatch aims360 products
      */
     public function fetchShipHeroProducts()

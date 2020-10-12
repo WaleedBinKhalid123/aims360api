@@ -49,7 +49,7 @@ abstract class BaseService extends AimsClientService implements IAimsService
     /**
      * @return bool|string
      */
-    public function authenticate()
+    /*public function authenticate()
     {
         $res =  $this->setHeaders(["Content-Type: application/x-www-form-urlencoded"])->post($this->getBaseUri().self::AUTH_END_POINT, [
             'username' => $this->config['auth']['username'],
@@ -59,14 +59,14 @@ abstract class BaseService extends AimsClientService implements IAimsService
             'client_secret' => $this->config['api_config']['client_secret']
         ]);
          dd($res);
-        }
+        }*/
 
     /**
      * Get Auth Token
      *
      * @return mixed|null
      */
-    public function getToken()
+    /*public function getToken()
     {
         if(!session()->has('current-expiry') || !session()->has('current-token'))
         {
@@ -86,20 +86,27 @@ abstract class BaseService extends AimsClientService implements IAimsService
         session()->forget('current-token');
         session()->forget('current-expiry');
         return null;
-    }
+    }*/
 
     /**
      * Return API Headers Token
      *
      * @return array
      */
-    public function getApiBearerToken()
+    /*public function getApiBearerToken()
     {
         return [
             sprintf("Authorization: Bearer %s", $this->getToken())
         ];
 
-    }
+    }*/
+
+    /**
+     * return authentication token for shiphero products
+     *
+     * @return string
+     *
+     */
     Public function token()
     {
         return
@@ -114,7 +121,7 @@ abstract class BaseService extends AimsClientService implements IAimsService
      *
      * @return \Illuminate\Support\Collection
      */
-    private function _setTokenExpiry($expiry)
+    /*private function _setTokenExpiry($expiry)
     {
         session()->put('current-token', $expiry->get('access_token'));
         session()->put('current-expiry', $expiry->get('expires_in'));
@@ -131,5 +138,5 @@ abstract class BaseService extends AimsClientService implements IAimsService
         return $this->setHeaders(["Content-Type: application/json"])->post('https://public-api.shiphero.com/graphql', [
 
         ]);
-    }
+    }*/
 }

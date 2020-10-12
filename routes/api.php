@@ -18,7 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/Aim360Styles', 'App\Http\Controllers\ApiController@getStyles');
+Route::get('/Aim360Styles', 'App\Http\Controllers\Aims360Controller@getStyles');
 
-Route::get('/GraphQl','App\Http\Controllers\ApiController@get');
+Route::get('/GraphQl','App\Http\Controllers\ShipHeroController@get');
 

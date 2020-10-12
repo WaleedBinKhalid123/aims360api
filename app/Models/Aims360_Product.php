@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 
-class QraphQlProduct extends Model
+class Aims360_Product extends Model
 {
-    use  HasFactory, Notifiable;
+    use HasFactory,Notifiable;
 
     /**
      * fields have to be filled manually
@@ -16,9 +16,10 @@ class QraphQlProduct extends Model
      * @var string[]
      */
     protected $fillable = [
-        'GQL_id',
-        'name',
-        'sku',
+        'styleColorID',
+        'style',
+        'color',
+        'description',
         'status'
     ];
 }

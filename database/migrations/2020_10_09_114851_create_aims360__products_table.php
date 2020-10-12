@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateQraphQlProductsTable extends Migration
+class CreateAims360ProductsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,12 @@ class CreateQraphQlProductsTable extends Migration
      */
     public function up()
     {
-        Schema::create('qraph_ql_products', function (Blueprint $table) {
+        Schema::create('aims360__products', function (Blueprint $table) {
             $table->id();
-            $table->string('GQL_id');
-            $table->string('name');
-            $table->string('sku')->unique();
+            $table->string('styleColorID')->unique();
+            $table->string('style');
+            $table->string('color');
+            $table->string('description');
             $table->string('status')->default('0');
             $table->timestamps();
         });
@@ -30,6 +31,6 @@ class CreateQraphQlProductsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('qraph_ql_products');
+        Schema::dropIfExists('aims360__products');
     }
 }
