@@ -3,12 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Services\Aims360\AimsStyleService;
-use App\Models\Shiphero_Products;
 use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\GuzzleException;
 use App\Models\QraphQlProduct;
 use Illuminate\Http\Request;
+use App\Models\Aims360_Product;
+use App\Models\ShipHero_Aims360;
 
 class ApiController extends Controller
 {
@@ -23,35 +22,29 @@ class ApiController extends Controller
 
      public $httpClient;
 
+    /**
+     * instantiate AimsStyleService object
+     *
+     * ApiController constructor.
+     */
+    public function __construct()
+    {
+        $this->httpClient = new Client();
+        $this->service = new AimsStyleService();
+    }
+
+
+    /**
+     * return graphql shiphero products view
+     *
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
      public function index()
      {
          $products = QraphQlProduct::all();
          return view('api.sh_products')->with('products',$products);
      }
 
-    /**
-     * instantiate AimsStyleService object
-     *
-     * ApiController constructor.
-     */
-     public function __construct()
-     {
-         $this->httpClient = new Client();
-         $this->service = new AimsStyleService();
-     }
-
-    /**
-     * get aims360 styles
-     *
-     * @return mixed
-     */
-     public function getStyles()
-     {
-//         dd($this->service->getBaseUri().self::AIMS360_STYLE_ENDPOINTS);
-         //$res = $this->service->setHeaders($this->service->getApiBearerToken())->post($this->service->getBaseUri().self::AIMS360_STYLE_ENDPOINTS);
-         //dd($res);
-         return $this->service->getAims360Styles();
-     }
 
      public function get()
      {
@@ -73,28 +66,25 @@ class ApiController extends Controller
                 }
             }
             QUERY;
-//
-         $options = [
-//             'headers' => [
-//                 'Authorization' => 'Bearer '.$this->service->getToken(),
-//             ],
 
+         $options = [
              'json' => [
                  'query' => $query,
              ],
          ];
-//
-//         try {
-//             $response = $this->httpClient->request('POST', 'https://public-api.shiphero.com/graphql', $options);
-//         } catch (GuzzleException $e) {
-//             throw new \RuntimeException('Network Error.' . $e->getMessage(), 0, $e);
-//         }
-//         echo $response->getBody();
 
          $res = $this->service->setHeaders(['Authorization: Bearer '.$this->service->token()])->post('https://public-api.shiphero.com/graphql?'.http_build_query($options['json']));
          return $this->addProducts($res);
      }
 
+    /**
+     *
+     * save graphql shiphero api products
+     *
+     * @param $products
+     * @return \Illuminate\Http\RedirectResponse
+     *
+     */
      public function addProducts($products)
      {
          $count = count($products['data']->products->data->edges);
@@ -111,10 +101,15 @@ class ApiController extends Controller
                  $graphql_products->save();
              }
          }
-         $products = QraphQlProduct::all();
-         return view('api.sh_products')->with('products',$products);
+         return redirect()->back();
      }
 
+    /**
+     * return shiphero product to edit
+     *
+     * @param Request $request
+     *
+     */
      public function getProduct(Request $request)
      {
          $data = QraphQlProduct::where('id', $request->id)->first();
@@ -137,6 +132,14 @@ class ApiController extends Controller
          echo json_encode($form);
      }
 
+
+    /**
+     * edit shiphero product
+     *
+     * @param Request $request
+     * @return mixed
+     *
+     */
      public function editProduct(Request $request)
      {
          QraphQlProduct::where('GQL_id', $request->input('id'))
@@ -144,6 +147,12 @@ class ApiController extends Controller
          return back()->withStatus('Product edit successfully');
      }
 
+    /**
+     * delete shiphero product
+     *
+     * @param Request $request
+     *
+     */
      public function deleteProduct(Request $request)
      {
          $product = QraphQlProduct::find($request->id);
@@ -151,4 +160,48 @@ class ApiController extends Controller
          $flag = 'Done';
          echo json_encode($flag);
      }
+
+    /**
+     *return all unmatch aims360 products
+     */
+    public function fetchShipHeroProducts()
+    {
+        $products = Aims360_Product::all()->where('status','0');
+        $table = "<table class='table border table-dark'>
+            <tr class='bg-dark text-white'>
+                <td><strong>StyleColorID</strong></td>
+                <td><strong>Style</strong></td>
+                <td><strong>Color</strong></td>
+                <td><strong>Action</strong></td>
+            </tr>";
+            foreach($products as $product) {
+               $table .= "<tr>
+                    <td>$product->styleColorID</td>
+                    <td>$product->style</td>
+                    <td>$product->color</td>
+                    <td><button class='btn btn-outline-light' onclick='match($product->id)'>Match</button></td>
+                </tr>";
+            }
+        $table .= "</table>";
+        echo json_encode($table);
+    }
+
+    /**
+     * match aims360 and shiphero product
+     *
+     * @param Request $request
+     */
+    public function matchProducts(Request $request)
+    {
+        Aims360_Product::where('id', $request->id)
+            ->update(['status' => '1']);
+        QraphQlProduct::where('id', $request->id1)
+            ->update(['status' => '1']);
+        $ship_aim = new ShipHero_Aims360;
+        $ship_aim->QraphQlProducts_id = $request->id1;
+        $ship_aim->Aims360Products_id = $request->id;
+        $ship_aim->save();
+        $flag = 'Done';
+        echo json_encode($flag);
+    }
 }
