@@ -36,9 +36,9 @@ Route::middleware('auth')->group(function() {
     Route::post('/aims360_product_get','App\Http\Controllers\Aims360Controller@getProduct');
     Route::get('A360_products/submit','App\Http\Controllers\Aims360Controller@editProduct');
     Route::get('aims360_product_delete','App\Http\Controllers\Aims360Controller@deleteProduct');
-    Route::get('fetch_ship_hero_product','App\Http\Controllers\ShipHeroController@fetchShipHeroProducts');
+    Route::get('fetch_ship_hero_product','App\Http\Controllers\ShipHeroController@fetchShipHeroProducts')->name('fetch_ship_hero_product_modal');
     Route::post('match_products','App\Http\Controllers\ShipHeroController@matchProducts');
-
+    Route::get('/aims360_products-loadData','App\Http\Controllers\Aims360Controller@loadData')->name('aims360_loaddata');
 });
 
 /*Route::get('/Aim360Styles', function (\App\Http\Services\Aims360\AimsStyleService $authenticationService) {

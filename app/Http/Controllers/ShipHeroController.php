@@ -178,24 +178,8 @@ class ShipHeroController extends Controller
      */
     public function fetchShipHeroProducts()
     {
-        $products = Aims360_Product::all()->where('status','0');
-        $table = "<table class='table border table-dark'>
-            <tr class='bg-dark text-white'>
-                <td><strong>StyleColorID</strong></td>
-                <td><strong>Style</strong></td>
-                <td><strong>Color</strong></td>
-                <td><strong>Action</strong></td>
-            </tr>";
-            foreach($products as $product) {
-               $table .= "<tr>
-                    <td>$product->styleColorID</td>
-                    <td>$product->style</td>
-                    <td>$product->color</td>
-                    <td><button class='btn btn-outline-light' onclick='match($product->id)'>Match</button></td>
-                </tr>";
-            }
-        $table .= "</table>";
-        echo json_encode($table);
+        $products = Aims360_Product::latest()->where('status','0')->get();
+        return datatables()->of( $products )->toJson();
     }
 
     /**

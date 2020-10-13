@@ -50,6 +50,37 @@
                 });
             }
         }
+
+        window.onload = function() {
+            // +++++ Agents Table +++++ //
+            let columns = ['styleColorID', 'style', 'color', 'description'];
+            let columnDefs = [
+                {
+                    render: (data, type, row) => {
+                        if(row.status == '1')
+                            return '<span class="badge badge-success">Matched</span>'
+
+                        return '<span class="badge badge-danger">Not Matched</span>';
+                    },
+
+                    targets: 4
+                },
+                {
+                    render: (data, type, row) => {
+                        return `<button class="btn" data-toggle="modal" data-target="#eProduct" onclick="eproduct(${row.id})" style="background-color: transparent;">
+                                <i class="fas fa-pen" style="color:#671313;"></i></button>
+                                <button class="btn"  onclick="dproduct(${row.id})">
+                                <i class="fas fa-trash-alt"></i></button>`
+                    },
+
+                    targets: 5
+                },
+            ];
+
+            dataTables('#aims360_products', "{{ route('aims360_loaddata') }}", columns, columnDefs);
+
+        };
+
     </script>
 @endsection
 
@@ -64,10 +95,10 @@
             <div class="col-md-12">
                 <h1 class="text-center my-5" style="font-family: 'Nunito', sans-serif;">AIMS360 PRODUCTS</h1>
                 <a href="/api/Aim360Styles"><button class="btn" style="color:white;background-color: grey;">Sync Products</button></a>
-                @if(!count($products) == 0)
                     <div class="row justify-content-center my-4">
                         <div class="col">
-                            <table class='table border table-hover text-center my-1' style="border-color: black;">
+                            <table class='table border table-hover text-center my-1' id="aims360_products" style="border-color: black;">
+                                <thead>
                                 <tr class="bg-dark text-white">
                                     <td><strong>StyleColorID</strong></td>
                                     <td><strong>Style</strong></td>
@@ -76,26 +107,11 @@
                                     <td><strong>Status</strong></td>
                                     <td><strong>Action</strong></td>
                                 </tr>
-                                @foreach($products as $key=>$product)
-                                    <tr>
-                                        <td>{{ $product->styleColorID }}</td>
-                                        <td>{{ $product->style }}</td>
-                                        <td>{{ $product->color }}</td>
-                                        <td>{{ $product->description }}</td>
-                                        @if($product->status == '0')
-                                            <td><span class="badge badge-danger">UnMatch</span></td>
-                                        @endif
-                                        @if($product->status == '1')
-                                            <td><span class="badge badge-success">Match</span></td>
-                                        @endif
-                                        <td><button class="btn" data-toggle="modal" data-target="#eProduct" onclick="eproduct({{$product->id}})" style="background-color: transparent;"><i class="fas fa-pen" style="color:#671313;"></i></button>
-                                            <button class="btn"  onclick="dproduct({{$product->id}})"><i class="fas fa-trash-alt"></i></button></td>
-                                    </tr>
-                                @endforeach
+                                </thead>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
-                @endif
             </div>
         </div>
     </div>

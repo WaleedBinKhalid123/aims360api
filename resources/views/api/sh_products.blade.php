@@ -51,26 +51,20 @@
         function showAimsProducts(id) {
             var input = $('#hidden');
             input.val(id);
-            $.ajax({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name=csrf-token]').attr('content')
+            let columns = ['styleColorID', 'style', 'color','description'];
+            let columnDefs = [
+                {
+                    render: (data, type, row) => {
+                        return `<button class=\'btn btn-outline-light\' onclick="match(${row.id})">Match</button>`;
+                    },
+
+                    targets: 4
                 },
-                type: 'get',
-                url: '/fetch_ship_hero_product',
-                dataType: 'json',
-                success: function(result2) {
-                    if(result2){
-                        console.log(result2);
-                        var body = $('#body');
-                        body.empty();
-                        body.append(result2);
-                    }
-                    else
-                    {
-                        alert("error");
-                    }
-                }
-            });
+
+            ];
+
+            dataTables('#modal_products', "{{ route('fetch_ship_hero_product_modal') }}", columns, columnDefs);
+            $.fn.dataTable.ext.errMode = 'none';
         }
 
         function match(id) {
@@ -101,7 +95,7 @@
             let columnDefs = [
                 {
                     render: (data, type, row) => {
-                        if(data == 1)
+                        if(row.status == '1')
                             return '<span class="badge badge-success">Matched</span>'
 
                         return '<span class="badge badge-danger">Not Matched</span>';
@@ -121,15 +115,22 @@
                 },
                 {
                     render: (data, type, row) => {
-                        return `<button class="btn" style="color:white;background-color: grey;" onclick="showAimsProducts(${row.id})" data-toggle="modal" data-target="#matchProducts">Match</button>`
+                        if(row.status == '0')
+                        {
+                            return `gicts(${row.id})" data-toggle="modal" data-target="#matchProducts">Match</button>`;
+                        }
+                        else
+                        {
+                            return null;
+                        }
                     },
-
                     targets: 5
+
                 },
             ];
 
-            dataTables('#shiphero_products', "{{ route('sh_loaddata') }}", columns, columnDefs);
-
+            var table = dataTables('#shiphero_products', "{{ route('sh_loaddata') }}", columns, columnDefs);
+            $.fn.dataTable.ext.errMode = 'none';
         };
 
     </script>
@@ -193,8 +194,8 @@
     </div>
 
     <!-- The Product Match Modal -->
-    <div class="modal" id="matchProducts">
-        <div class="modal-dialog">
+    <div class="modal bd-example-modal-lg" id="matchProducts" style="padding: 50px;">
+        <div class="modal-dialog  modal-lg">
             <div class="modal-content">
 
                 <!-- Modal Header -->
@@ -205,7 +206,18 @@
 
                 <!-- Modal body -->
                 <div class="modal-body" id="body">
-
+                    <table class='table border table-dark' id="modal_products">
+                        <thead>
+                        <tr class='bg-dark text-white col-lg-12'>
+                            <td><strong>StyleColorID</strong></td>
+                            <td><strong>Style</strong></td>
+                            <td><strong>Color</strong></td>
+                            <td><strong>Description</strong></td>
+                            <td><strong>Action</strong></td>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
 
                 <!-- Modal footer -->

@@ -67,6 +67,15 @@
             top: 200px;
             background-color: #555 /* Light Black */
         }
+        #aims360_products_filter{
+            float: right;
+        }
+        #shiphero_products_filter{
+            float: right;
+        }
+        #modal_products_filter{
+            float: right;
+        }
     </style>
 </head>
 <body>

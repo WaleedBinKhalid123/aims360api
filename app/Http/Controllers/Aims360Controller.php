@@ -6,6 +6,7 @@ use App\Http\Services\Aims360\AimsStyleService;
 use App\Models\Aims360_Product;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use DataTables;
 
 class Aims360Controller extends Controller
 {
@@ -30,6 +31,12 @@ class Aims360Controller extends Controller
     {
         $products = Aims360_Product::all();
         return view('api.A360_products')->with('products',$products);
+    }
+
+    public function loadData()
+    {
+        $products = Aims360_Product::latest()->get();
+        return datatables()->of( $products )->toJson();
     }
 
     /**
