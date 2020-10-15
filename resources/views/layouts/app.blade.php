@@ -91,6 +91,9 @@
             box-shadow: 0 4px 20px 1px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.08);
             border: 0;
         }
+        #shiphero_products_info{
+            display: none;
+        }
     </style>
     <script>
         $(function(){
